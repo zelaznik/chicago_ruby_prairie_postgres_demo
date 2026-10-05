@@ -1,12 +1,6 @@
-<% content_for :title, "Editing person" %>
+<% content_for :title, "Edit person" %>
 
-<h1>Editing person</h1>
+<%= link_to "‹ Back to #{@person.username.presence || 'person'}", @person, class: "mb-4 inline-block text-sm text-slate-500 hover:text-slate-900" %>
+<h1 class="mb-6 text-2xl font-semibold tracking-tight">Edit person</h1>
 
 <%= render "form", person: @person %>
-
-<br>
-
-<div>
-  <%= link_to "Show this person", @person %> |
-  <%= link_to "Back to people", people_path %>
-</div>

@@ -1,11 +1,6 @@
-<% content_for :title, "New person" %>
+<% content_for :title, "Add person" %>
 
-<h1>New person</h1>
+<%= link_to "‹ All people", people_path, class: "mb-4 inline-block text-sm text-slate-500 hover:text-slate-900" %>
+<h1 class="mb-6 text-2xl font-semibold tracking-tight">Add person</h1>
 
 <%= render "form", person: @person %>
-
-<br>
-
-<div>
-  <%= link_to "Back to people", people_path %>
-</div>

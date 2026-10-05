@@ -1,9 +1,8 @@
-<%= form_with(model: person) do |form| %>
+<%= form_with(model: person, class: "space-y-5 rounded-lg bg-white p-5 shadow-sm ring-1 ring-slate-200") do |form| %>
   <% if person.errors.any? %>
-    <div style="color: red">
-      <h2><%= pluralize(person.errors.count, "error") %> prohibited this person from being saved:</h2>
-
-      <ul>
+    <div class="rounded-md bg-rose-50 px-4 py-3 text-sm text-rose-800 ring-1 ring-rose-200">
+      <p class="font-medium"><%= pluralize(person.errors.count, "error") %> kept this person from being saved:</p>
+      <ul class="mt-1 list-disc pl-5">
         <% person.errors.each do |error| %>
           <li><%= error.full_message %></li>
         <% end %>
@@ -12,21 +11,23 @@
   <% end %>
 
   <div>
-    <%= form.label :username, style: "display: block" %>
-    <%= form.text_field :username %>
+    <%= form.label :username, class: "field-label" %>
+    <%= form.text_field :username, class: "field-input", autofocus: true %>
   </div>
 
   <div>
-    <%= form.label :status, style: "display: block" %>
-    <%= form.textarea :status %>
+    <%= form.label :status, class: "field-label" %>
+    <%= form.textarea :status, rows: 2, class: "field-input" %>
   </div>
 
   <div>
-    <%= form.label :ssn, style: "display: block" %>
-    <%= form.text_field :ssn %>
+    <%= form.label :ssn, "SSN", class: "field-label" %>
+    <%= form.text_field :ssn, class: "field-input font-mono", placeholder: "123-45-6789", autocomplete: "off" %>
+    <p class="mt-1 text-xs text-slate-500">Stored encrypted.</p>
   </div>
 
-  <div>
-    <%= form.submit %>
+  <div class="flex items-center justify-end gap-3 pt-2">
+    <%= link_to "Cancel", (person.persisted? ? person : people_path), class: "btn btn-secondary" %>
+    <%= form.submit class: "btn btn-primary" %>
   </div>
 <% end %>
