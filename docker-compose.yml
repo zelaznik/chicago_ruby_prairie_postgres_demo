@@ -1,0 +1,54 @@
+x-env_files: &env_files
+  env_file:
+    - ".env.${RAILS_ENV:-development}"
+    - .env.docker
+
+x-default: &default
+  <<: *env_files
+  build:
+    context: .
+    dockerfile: Dockerfile
+  depends_on:
+    - postgres
+    - redis
+  volumes:
+    - .:/rails
+  tmpfs:
+    - /tmp/pids/
+  tty: true
+  stdin_open: true
+
+services:
+  postgres:
+    <<: *env_files
+    image: postgres:17.5-alpine
+    volumes:
+      - postgres:/var/lib/postgresql/data
+
+  redis:
+    <<: *env_files
+    image: redis:8.0.2-alpine
+    volumes:
+      - redis:/data
+
+  web:
+    <<: *default
+    ports:
+      - "3001:3000"
+    command: bin/rails server -b 0.0.0.0 -p 3000
+
+  worker:
+    <<: *default
+    command: bundle exec sidekiq
+
+  js:
+    <<: *default
+    command: yarn build --watch
+
+  css:
+    <<: *default
+    command: yarn build:css --watch
+
+volumes:
+  postgres: {}
+  redis: {}
