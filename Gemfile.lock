@@ -76,6 +76,8 @@ GEM
       tzinfo (~> 2.0, >= 2.0.5)
       uri (>= 0.13.1)
     ast (2.4.3)
+    attr_encrypted (4.2.0)
+      encryptor (~> 3.0.0)
     base64 (0.3.0)
     bcrypt_pbkdf (1.1.2)
     bcrypt_pbkdf (1.1.2-arm64-darwin)
@@ -102,6 +104,7 @@ GEM
     dotenv (3.2.0)
     drb (2.2.3)
     ed25519 (1.4.0)
+    encryptor (3.0.0)
     erb (6.0.7)
     erubi (1.13.1)
     et-orbi (1.4.2)
@@ -381,6 +384,7 @@ PLATFORMS
   x86_64-linux-musl
 
 DEPENDENCIES
+  attr_encrypted
   bootsnap
   brakeman
   bundler-audit
