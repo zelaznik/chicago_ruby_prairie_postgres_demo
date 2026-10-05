@@ -14,14 +14,18 @@ FROM docker.io/library/ruby:$RUBY_VERSION-slim AS base
 # Rails app lives here
 WORKDIR /rails
 
-# Install base packages including Node.js from NodeSource
+# Install base packages including Node.js from NodeSource and a PostgreSQL client
+# from PGDG matching the server major version (pg_dump refuses newer servers)
+ARG PG_MAJOR=17
 RUN apt-get update -qq && \
-    apt-get install --no-install-recommends -y curl gnupg libjemalloc2 libvips postgresql-client && \
+    apt-get install --no-install-recommends -y curl gnupg libjemalloc2 libvips && \
     mkdir -p /etc/apt/keyrings && \
     curl -fsSL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key | gpg --dearmor -o /etc/apt/keyrings/nodesource.gpg && \
     echo "deb [signed-by=/etc/apt/keyrings/nodesource.gpg] https://deb.nodesource.com/node_24.x nodistro main" | tee /etc/apt/sources.list.d/nodesource.list && \
+    curl -fsSL https://www.postgresql.org/media/keys/ACCC4CF8.asc | gpg --dearmor -o /etc/apt/keyrings/pgdg.gpg && \
+    echo "deb [signed-by=/etc/apt/keyrings/pgdg.gpg] https://apt.postgresql.org/pub/repos/apt $(. /etc/os-release && echo $VERSION_CODENAME)-pgdg main" | tee /etc/apt/sources.list.d/pgdg.list && \
     apt-get update -qq && \
-    apt-get install --no-install-recommends -y nodejs && \
+    apt-get install --no-install-recommends -y nodejs postgresql-client-${PG_MAJOR} && \
     rm -rf /var/lib/apt/lists /var/cache/apt/archives && \
     npm install -g yarn
 
