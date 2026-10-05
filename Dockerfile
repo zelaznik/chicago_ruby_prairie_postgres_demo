@@ -26,8 +26,9 @@ RUN apt-get update -qq && \
     npm install -g yarn
 
 # Set production environment
+ARG BUNDLE_DEPLOYMENT
 ENV RAILS_ENV="production" \
-    BUNDLE_DEPLOYMENT="1" \
+    BUNDLE_DEPLOYMENT="${BUNDLE_DEPLOYMENT:-1}" \
     BUNDLE_PATH="/usr/local/bundle" \
     BUNDLE_WITHOUT="development"
 

@@ -8,6 +8,8 @@ x-default: &default
   build:
     context: .
     dockerfile: Dockerfile
+    args:
+      BUNDLE_DEPLOYMENT: "0"
   depends_on:
     - postgres
     - redis
