@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html class="h-full bg-slate-100">
   <head>
     <title><%= content_for(:title) || "Chicago Ruby Prairie Postgres Demo" %></title>
     <meta name="viewport" content="width=device-width,initial-scale=1">
@@ -23,7 +23,16 @@
     <%= javascript_include_tag "application", "data-turbo-track": "reload", type: "module" %>
   </head>
 
-  <body>
-    <%= yield %>
+  <body class="min-h-full text-slate-900 antialiased">
+    <main class="mx-auto max-w-2xl px-4 py-10 sm:py-16">
+      <% if notice.present? %>
+        <p class="mb-6 rounded-md bg-emerald-50 px-4 py-3 text-sm text-emerald-800 ring-1 ring-emerald-200"><%= notice %></p>
+      <% end %>
+      <% if alert.present? %>
+        <p class="mb-6 rounded-md bg-rose-50 px-4 py-3 text-sm text-rose-800 ring-1 ring-rose-200"><%= alert %></p>
+      <% end %>
+
+      <%= yield %>
+    </main>
   </body>
 </html>

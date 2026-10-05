@@ -1,10 +1,11 @@
-<p style="color: green"><%= notice %></p>
+<% content_for :title, @person.username.presence || "Person" %>
+
+<%= link_to "‹ All people", people_path, class: "mb-4 inline-block text-sm text-slate-500 hover:text-slate-900" %>
 
 <%= render @person %>
 
-<div>
-  <%= link_to "Edit this person", edit_person_path(@person) %> |
-  <%= link_to "Back to people", people_path %>
-
-  <%= button_to "Destroy this person", @person, method: :delete %>
+<div class="mt-6 flex items-center justify-between gap-3">
+  <%= link_to "Edit", edit_person_path(@person), class: "btn btn-secondary" %>
+  <%= button_to "Delete person", @person, method: :delete, class: "btn btn-danger",
+        data: { turbo_confirm: "Delete #{@person.username.presence || 'this person'}?" } %>
 </div>

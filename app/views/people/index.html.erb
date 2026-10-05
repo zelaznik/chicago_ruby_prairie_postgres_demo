@@ -1,16 +1,34 @@
-<p style="color: green"><%= notice %></p>
-
 <% content_for :title, "People" %>
 
-<h1>People</h1>
-
-<div id="people">
-  <% @people.each do |person| %>
-    <%= render person %>
-    <p>
-      <%= link_to "Show this person", person %>
-    </p>
-  <% end %>
+<div class="mb-6 flex items-center justify-between gap-4">
+  <div>
+    <h1 class="text-2xl font-semibold tracking-tight">People</h1>
+    <p class="text-sm text-slate-500"><%= pluralize(@people.size, "person") %></p>
+  </div>
+  <%= link_to "Add person", new_person_path, class: "btn btn-primary" %>
 </div>
 
-<%= link_to "New person", new_person_path %>
+<% if @people.any? %>
+  <ul id="people" class="divide-y divide-slate-200 overflow-hidden rounded-lg bg-white shadow-sm ring-1 ring-slate-200">
+    <% @people.each do |person| %>
+      <li id="<%= dom_id person %>">
+        <%= link_to person, class: "flex items-center gap-4 px-4 py-3 hover:bg-slate-50 focus-visible:bg-slate-50 focus-visible:outline-none" do %>
+          <span class="grid size-9 shrink-0 place-items-center rounded-full bg-sky-100 text-sm font-semibold text-sky-800">
+            <%= person.username.to_s.first.to_s.upcase.presence || "?" %>
+          </span>
+          <span class="min-w-0 flex-1">
+            <span class="block truncate font-medium text-slate-900"><%= person.username.presence || "Unnamed" %></span>
+            <span class="block text-sm text-slate-500">SSN <%= person.ssn.present? ? "•••-••-#{person.ssn.to_s.last(4)}" : "not on file" %></span>
+          </span>
+          <%= render "people/status", status: person.status %>
+        <% end %>
+      </li>
+    <% end %>
+  </ul>
+<% else %>
+  <div class="rounded-lg border-2 border-dashed border-slate-300 px-6 py-12 text-center">
+    <p class="font-medium text-slate-700">No people yet</p>
+    <p class="mt-1 text-sm text-slate-500">Add the first person to start the list.</p>
+    <%= link_to "Add person", new_person_path, class: "btn btn-primary mt-4" %>
+  </div>
+<% end %>
