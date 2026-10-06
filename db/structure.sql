@@ -51,7 +51,8 @@ CREATE TABLE public.people (
     encrypted_ssn text,
     encrypted_ssn_iv text,
     created_at timestamp(6) without time zone NOT NULL,
-    updated_at timestamp(6) without time zone NOT NULL
+    updated_at timestamp(6) without time zone NOT NULL,
+    pg_encrypted_ssn text
 );
 
 
@@ -121,6 +122,7 @@ ALTER TABLE ONLY public.schema_migrations
 SET search_path TO "$user", public;
 
 INSERT INTO "schema_migrations" (version) VALUES
+('20261006135448'),
 ('20261006095744'),
 ('20261006010613'),
 ('20261005181011');
