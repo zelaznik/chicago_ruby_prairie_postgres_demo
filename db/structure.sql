@@ -47,7 +47,7 @@ CREATE TABLE public.ar_internal_metadata (
 CREATE TABLE public.people (
     id bigint NOT NULL,
     username text,
-    status text DEFAULT 'active'::text,
+    status text DEFAULT 'active'::text NOT NULL,
     encrypted_ssn text,
     encrypted_ssn_iv text,
     created_at timestamp(6) without time zone NOT NULL,
@@ -121,6 +121,7 @@ ALTER TABLE ONLY public.schema_migrations
 SET search_path TO "$user", public;
 
 INSERT INTO "schema_migrations" (version) VALUES
+('20261006095744'),
 ('20261006010613'),
 ('20261005181011');
 
