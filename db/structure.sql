@@ -10,6 +10,90 @@ SET xmloption = content;
 SET client_min_messages = warning;
 SET row_security = off;
 
+--
+-- Name: pgcrypto; Type: EXTENSION; Schema: -; Owner: -
+--
+
+CREATE EXTENSION IF NOT EXISTS pgcrypto WITH SCHEMA public;
+
+
+--
+-- Name: EXTENSION pgcrypto; Type: COMMENT; Schema: -; Owner: -
+--
+
+COMMENT ON EXTENSION pgcrypto IS 'cryptographic functions';
+
+
+--
+-- Name: people_create_06c6f5f358588811(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.people_create_06c6f5f358588811() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+  BEGIN
+    INSERT INTO people_encrypted (
+      id,
+      username,
+      status,
+      encrypted_ssn,
+      encrypted_ssn_iv,
+      created_at,
+      updated_at,
+      pg_encrypted_ssn
+    ) VALUES (
+      COALESCE(NEW.id, nextval('people_id_seq'::regclass)),
+      NEW.username,
+      COALESCE(NEW.status, 'active'::text),
+      NEW.encrypted_ssn,
+      NEW.encrypted_ssn_iv,
+      NEW.created_at,
+      NEW.updated_at,
+      pgp_sym_encrypt( NEW.ssn::text, current_setting('app.encryption_key') )
+    )
+
+    RETURNING id INTO NEW.id;
+
+    RETURN NEW;
+  END;
+$$;
+
+
+--
+-- Name: people_update_06c6f5f358588811(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.people_update_06c6f5f358588811() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+  BEGIN
+    UPDATE
+      "people_encrypted"
+    SET
+      id = NEW.id,
+      username = NEW.username,
+      status = NEW.status,
+      encrypted_ssn = NEW.encrypted_ssn,
+      encrypted_ssn_iv = NEW.encrypted_ssn_iv,
+      created_at = NEW.created_at,
+      updated_at = NEW.updated_at
+    WHERE
+      id = NEW.id;
+
+    IF (NEW.ssn IS DISTINCT FROM OLD.ssn) THEN
+      UPDATE people_encrypted
+      SET pg_encrypted_ssn = pgp_sym_encrypt(
+        NEW.ssn::text,
+        current_setting('app.encryption_key')
+      )
+      WHERE id = NEW.id;
+    END IF;
+
+    RETURN NEW;
+  END;
+$$;
+
+
 SET default_tablespace = '';
 
 SET default_table_access_method = heap;
@@ -27,18 +111,35 @@ CREATE TABLE public.ar_internal_metadata (
 
 
 --
--- Name: people; Type: TABLE; Schema: public; Owner: -
+-- Name: people_encrypted; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE public.people (
+CREATE TABLE public.people_encrypted (
     id bigint NOT NULL,
     username text,
-    status text DEFAULT 'active'::text,
+    status text DEFAULT 'active'::text NOT NULL,
     encrypted_ssn text,
     encrypted_ssn_iv text,
     created_at timestamp(6) without time zone NOT NULL,
-    updated_at timestamp(6) without time zone NOT NULL
+    updated_at timestamp(6) without time zone NOT NULL,
+    pg_encrypted_ssn text
 );
+
+
+--
+-- Name: people; Type: VIEW; Schema: public; Owner: -
+--
+
+CREATE VIEW public.people AS
+ SELECT id,
+    username,
+    status,
+    encrypted_ssn,
+    encrypted_ssn_iv,
+    created_at,
+    updated_at,
+    public.pgp_sym_decrypt((pg_encrypted_ssn)::bytea, current_setting('app.encryption_key'::text)) AS ssn
+   FROM public.people_encrypted;
 
 
 --
@@ -57,7 +158,7 @@ CREATE SEQUENCE public.people_id_seq
 -- Name: people_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
 
-ALTER SEQUENCE public.people_id_seq OWNED BY public.people.id;
+ALTER SEQUENCE public.people_id_seq OWNED BY public.people_encrypted.id;
 
 
 --
@@ -70,10 +171,17 @@ CREATE TABLE public.schema_migrations (
 
 
 --
--- Name: people id; Type: DEFAULT; Schema: public; Owner: -
+-- Name: people status; Type: DEFAULT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY public.people ALTER COLUMN id SET DEFAULT nextval('public.people_id_seq'::regclass);
+ALTER TABLE ONLY public.people ALTER COLUMN status SET DEFAULT 'active'::text;
+
+
+--
+-- Name: people_encrypted id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.people_encrypted ALTER COLUMN id SET DEFAULT nextval('public.people_id_seq'::regclass);
 
 
 --
@@ -85,10 +193,10 @@ ALTER TABLE ONLY public.ar_internal_metadata
 
 
 --
--- Name: people people_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+-- Name: people_encrypted people_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY public.people
+ALTER TABLE ONLY public.people_encrypted
     ADD CONSTRAINT people_pkey PRIMARY KEY (id);
 
 
@@ -101,11 +209,40 @@ ALTER TABLE ONLY public.schema_migrations
 
 
 --
+-- Name: people _before_delete_on_people_encrypted_06c6f5f358588811; Type: RULE; Schema: public; Owner: -
+--
+
+CREATE RULE _before_delete_on_people_encrypted_06c6f5f358588811 AS
+    ON DELETE TO public.people DO INSTEAD  DELETE FROM public.people_encrypted
+  WHERE (people_encrypted.id = old.id);
+
+
+--
+-- Name: people trg_instead_of_insert_on_people_encrypted_06c6f5f358588811; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER trg_instead_of_insert_on_people_encrypted_06c6f5f358588811 INSTEAD OF INSERT ON public.people FOR EACH ROW EXECUTE FUNCTION public.people_create_06c6f5f358588811();
+
+
+--
+-- Name: people trg_instead_of_update_on_people_encrypted_06c6f5f358588811; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER trg_instead_of_update_on_people_encrypted_06c6f5f358588811 INSTEAD OF UPDATE ON public.people FOR EACH ROW EXECUTE FUNCTION public.people_update_06c6f5f358588811();
+
+
+--
 -- PostgreSQL database dump complete
 --
 
 SET search_path TO "$user", public;
 
 INSERT INTO "schema_migrations" (version) VALUES
+('20261007143744'),
+('20261007143617'),
+('20261006171045'),
+('20261006135448'),
+('20261006095744'),
+('20261006010613'),
 ('20261005181011');
 
