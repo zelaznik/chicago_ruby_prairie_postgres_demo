@@ -102,6 +102,16 @@ RSpec.shared_examples "an_encrypted_postgres_view" do |**options|
     expect(actual_model_values).to eq(fields_with_defaults)
   end
 
+  it "initializes new records with the underlying table's default values" do
+    new_record = described_class.new
+
+    actual_model_values = fields_with_defaults.keys.map do |key|
+      [key, new_record.read_attribute_before_type_cast(key)]
+    end.to_h
+
+    expect(actual_model_values).to eq(fields_with_defaults)
+  end
+
   it "doesn't set any unexpected default values" do
     nullable_fields_without_defaults = table_query
       .reject { |r| r['generation_expression'].present? }
