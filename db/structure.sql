@@ -25,10 +25,10 @@ COMMENT ON EXTENSION pgcrypto IS 'cryptographic functions';
 
 
 --
--- Name: people_create_370ed45a8097674b(); Type: FUNCTION; Schema: public; Owner: -
+-- Name: people_create_06c6f5f358588811(); Type: FUNCTION; Schema: public; Owner: -
 --
 
-CREATE FUNCTION public.people_create_370ed45a8097674b() RETURNS trigger
+CREATE FUNCTION public.people_create_06c6f5f358588811() RETURNS trigger
     LANGUAGE plpgsql
     AS $$
   BEGIN
@@ -60,10 +60,10 @@ $$;
 
 
 --
--- Name: people_update_370ed45a8097674b(); Type: FUNCTION; Schema: public; Owner: -
+-- Name: people_update_06c6f5f358588811(); Type: FUNCTION; Schema: public; Owner: -
 --
 
-CREATE FUNCTION public.people_update_370ed45a8097674b() RETURNS trigger
+CREATE FUNCTION public.people_update_06c6f5f358588811() RETURNS trigger
     LANGUAGE plpgsql
     AS $$
   BEGIN
@@ -171,6 +171,13 @@ CREATE TABLE public.schema_migrations (
 
 
 --
+-- Name: people status; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.people ALTER COLUMN status SET DEFAULT 'active'::text;
+
+
+--
 -- Name: people_encrypted id; Type: DEFAULT; Schema: public; Owner: -
 --
 
@@ -202,26 +209,26 @@ ALTER TABLE ONLY public.schema_migrations
 
 
 --
--- Name: people _before_delete_on_people_encrypted_370ed45a8097674b; Type: RULE; Schema: public; Owner: -
+-- Name: people _before_delete_on_people_encrypted_06c6f5f358588811; Type: RULE; Schema: public; Owner: -
 --
 
-CREATE RULE _before_delete_on_people_encrypted_370ed45a8097674b AS
+CREATE RULE _before_delete_on_people_encrypted_06c6f5f358588811 AS
     ON DELETE TO public.people DO INSTEAD  DELETE FROM public.people_encrypted
   WHERE (people_encrypted.id = old.id);
 
 
 --
--- Name: people trg_instead_of_insert_on_people_encrypted_370ed45a8097674b; Type: TRIGGER; Schema: public; Owner: -
+-- Name: people trg_instead_of_insert_on_people_encrypted_06c6f5f358588811; Type: TRIGGER; Schema: public; Owner: -
 --
 
-CREATE TRIGGER trg_instead_of_insert_on_people_encrypted_370ed45a8097674b INSTEAD OF INSERT ON public.people FOR EACH ROW EXECUTE FUNCTION public.people_create_370ed45a8097674b();
+CREATE TRIGGER trg_instead_of_insert_on_people_encrypted_06c6f5f358588811 INSTEAD OF INSERT ON public.people FOR EACH ROW EXECUTE FUNCTION public.people_create_06c6f5f358588811();
 
 
 --
--- Name: people trg_instead_of_update_on_people_encrypted_370ed45a8097674b; Type: TRIGGER; Schema: public; Owner: -
+-- Name: people trg_instead_of_update_on_people_encrypted_06c6f5f358588811; Type: TRIGGER; Schema: public; Owner: -
 --
 
-CREATE TRIGGER trg_instead_of_update_on_people_encrypted_370ed45a8097674b INSTEAD OF UPDATE ON public.people FOR EACH ROW EXECUTE FUNCTION public.people_update_370ed45a8097674b();
+CREATE TRIGGER trg_instead_of_update_on_people_encrypted_06c6f5f358588811 INSTEAD OF UPDATE ON public.people FOR EACH ROW EXECUTE FUNCTION public.people_update_06c6f5f358588811();
 
 
 --
@@ -231,6 +238,8 @@ CREATE TRIGGER trg_instead_of_update_on_people_encrypted_370ed45a8097674b INSTEA
 SET search_path TO "$user", public;
 
 INSERT INTO "schema_migrations" (version) VALUES
+('20261007143744'),
+('20261007143617'),
 ('20261006171045'),
 ('20261006135448'),
 ('20261006095744'),
