@@ -1,3 +1,3 @@
 class Person < ApplicationRecord
-  attr_encrypted :ssn
+  self.primary_key = :id
 end
